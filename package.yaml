@@ -20,7 +20,11 @@ extra-source-files:
 description:         Please see the README on GitHub at <https://github.com/abt8601/nctumpc#readme>
 
 dependencies:
+- array >= 0.5 && < 0.6
 - base >= 4.7 && < 5
+- bytestring >= 0.10 && < 0.11
+- mtl >= 2 && < 3
+- text >= 1 && < 2
 
 library:
   source-dirs: src
@@ -29,6 +33,16 @@ executables:
   nctumpc-exe:
     main:                Main.hs
     source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - nctumpc
+
+  icd-hw1-test-exe:
+    main:                Main.hs
+    source-dirs:         icd-test-exes/hw1
     ghc-options:
     - -threaded
     - -rtsopts
@@ -46,3 +60,14 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - nctumpc
+
+  icd-hw1-test:
+    main:                Main.hs
+    source-dirs:         icd-test/hw1
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - nctumpc
+    - process >= 1 && < 2
