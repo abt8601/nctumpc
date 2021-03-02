@@ -48,7 +48,7 @@ $x = [xX]
 $y = [yY]
 $z = [zZ]
 
-@ident = [a-z][a-zA-Z0-9_]*[a-zA-Z0-9]|[a-z]
+@ident = [a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9]|[a-zA-Z]
 
 @integer = [0-9]+
 @real = [0-9]+\.[0-9]+
