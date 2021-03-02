@@ -143,20 +143,24 @@ optional_var
 
 compound_statement
       : begin
-        optional_statements
+        statement_list
         end
         {}
 
-optional_statements
-      : statement_list
+statement_list
+      : statement_list ';' statement
+        {}
+      | statement_list ';'
+        {}
+      | statement
         {}
       | {- empty -}
         {}
 
-statement_list
+optional_statement
       : statement
         {}
-      | statement_list ';' statement
+      | {- empty -}
         {}
 
 statement
@@ -166,11 +170,9 @@ statement
         {}
       | compound_statement
         {}
-      | if expression then statement else statement
+      | if expression then optional_statement else optional_statement
         {}
-      | while expression do statement
-        {}
-      | {- empty -}
+      | while expression do optional_statement
         {}
 
 variable
