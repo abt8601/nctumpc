@@ -30,11 +30,6 @@ module NCTUMPC.Parser.Types
     -- $parserLog
     PLog (..),
 
-    -- * Location
-    -- $location
-    Loc (..),
-    LocSpan (..),
-
     -- * Token
     -- $token
     Token (..),
@@ -48,6 +43,7 @@ import Data.ByteString.Builder (Builder)
 import qualified Data.ByteString.Lazy as BL
 import Data.Char (chr)
 import Data.Word (Word8)
+import NCTUMPC.Loc (Loc)
 
 -- $parserMonad
 
@@ -174,30 +170,6 @@ data PLog
         -- | Token text.
         plTokenText :: B.ByteString
       }
-
--- $location
-
--- | A location of a program source.
-data Loc = Loc
-  { -- | Line number.
-    locLn :: Int,
-    -- | Column number.
-    locCol :: Int
-  }
-  deriving (Eq, Ord, Show, Read)
-
--- | A span of location of a program source.
-data LocSpan = LocSpan
-  { -- | Starting location.
-    locFirst :: Loc,
-    -- | Ending location.
-    locLast :: Loc
-  }
-  deriving (Eq, Ord, Show, Read)
-
-instance Semigroup LocSpan where
-  LocSpan {locFirst = f} <> LocSpan {locLast = l} =
-    LocSpan {locFirst = f, locLast = l}
 
 -- $token
 

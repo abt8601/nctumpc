@@ -7,10 +7,10 @@ import qualified Data.ByteString as B
 import Data.ByteString.Builder (hPutBuilder)
 import qualified Data.ByteString.Lazy as BL
 import Data.Foldable (traverse_)
+import NCTUMPC.Loc (Loc (..))
 import NCTUMPC.Parser.Scanner (scan)
 import NCTUMPC.Parser.Types
-  ( Loc (..),
-    PLog (..),
+  ( PLog (..),
     POpts (..),
     Token (..),
     mkPState,

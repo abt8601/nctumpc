@@ -18,10 +18,9 @@ import Data.ByteString.Builder (byteString)
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8)
+import NCTUMPC.Loc (Loc (..), LocSpan (..))
 import NCTUMPC.Parser.Types
   ( AlexInput (..),
-    Loc (..),
-    LocSpan (..),
     P,
     PLog (..),
     POpts (..),

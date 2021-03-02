@@ -15,9 +15,10 @@ module NCTUMPC.Parser.Scanner
   )
 where
 
-import NCTUMPC.Parser.Types
+import Control.Monad.State (get, gets)
+import NCTUMPC.Loc
 import NCTUMPC.Parser.Internal.Actions
-import Control.Monad.State
+import NCTUMPC.Parser.Types
 }
 
 $a = [aA]
