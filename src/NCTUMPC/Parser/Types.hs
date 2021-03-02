@@ -170,6 +170,16 @@ data PLog
         -- | Token text.
         plTokenText :: B.ByteString
       }
+  | -- | Parse error.
+    LogParseError
+      { -- | Location of the token, comment delimiter, or error.
+        plLoc :: Loc,
+        -- | The content of the current line being read, up to and including the
+        -- error.
+        plLineBuffer :: Builder,
+        -- | Token text.
+        plTokenText :: B.ByteString
+      }
 
 -- $token
 

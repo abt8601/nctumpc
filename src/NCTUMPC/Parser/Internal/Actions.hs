@@ -11,6 +11,7 @@
 module NCTUMPC.Parser.Internal.Actions where
 
 import Control.Monad (when)
+import Control.Monad.Except (throwError)
 import Control.Monad.State (get, gets, modify, put)
 import Control.Monad.Writer (tell)
 import qualified Data.ByteString as B
@@ -25,6 +26,7 @@ import NCTUMPC.Parser.Types
     PLog (..),
     POpts (..),
     PState (..),
+    Token,
     alexGetByte,
   )
 
@@ -155,3 +157,22 @@ logError :: P ()
 logError = do
   PState {psTokenText = txt, psLineNo = l, psFirstColNo = c} <- get
   tell [LogLexError {plLoc = Loc {locLn = l, locCol = c}, plTokenText = txt}]
+
+-- | Action upon parse error.
+parseError :: (LocSpan, Token) -> P a
+parseError _ = do
+  PState
+    { psTokenText = txt,
+      psLineNo = l,
+      psFirstColNo = c,
+      psLineBuffer = buf
+    } <-
+    get
+  tell
+    [ LogParseError
+        { plLoc = Loc {locLn = l, locCol = c},
+          plLineBuffer = buf,
+          plTokenText = txt
+        }
+    ]
+  throwError ()
