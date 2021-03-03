@@ -86,9 +86,13 @@ identifier_list
         {}
 
 declarations
-      : declarations var identifier_list ':' type ';'
+      : declarations declaration
         {}
       | {- empty -}
+        {}
+
+declaration
+      : var identifier_list ':' type ';'
         {}
 
 type  : standard_type
@@ -130,9 +134,13 @@ arguments
         {}
 
 parameter_list
-      : optional_var identifier_list ':' type
+      : parameter_group
         {}
-      | parameter_list ';' optional_var identifier_list ':' type
+      | parameter_list ';' parameter_group
+        {}
+
+parameter_group
+      : optional_var identifier_list ':' type
         {}
 
 optional_var
