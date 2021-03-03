@@ -12,7 +12,8 @@
 module NCTUMPC.Parser (parse) where
 
 import NCTUMPC.AST
-  ( MPVar (..),
+  ( MPStmt (..),
+    MPVar (..),
     MPExpr (..),
     MPBinOp (..),
     MPUnOp (..),
@@ -163,38 +164,42 @@ optional_var
         {}
 
 compound_statement
+      :: { [MPStmt] }
       : begin
         statement_list
         end
-        {}
+        { reverse $2 }
 
 statement_list
+      :: { [MPStmt] }
       : statement_list ';' statement
-        {}
+        { $3 : $1 }
       | statement_list ';'
-        {}
+        { $1 }
       | statement
-        {}
+        { [$1] }
       | {- empty -}
-        {}
+        { [] }
 
 optional_statement
+      :: { Maybe MPStmt }
       : statement
-        {}
+        { Just $1 }
       | {- empty -}
-        {}
+        { Nothing }
 
 statement
+      :: { MPStmt }
       : variable ':=' expression
-        {}
+        { MPSAssign {mpsVarName = $1, mpsVarExpr = $3} }
       | procedure_statement
-        {}
+        { $1 }
       | compound_statement
-        {}
+        { MPSCompound $1 }
       | if expression then optional_statement else optional_statement
-        {}
+        { MPSIf {mpsCond = $2, mpsStmtThen = $4, mpsStmtElse = $6} }
       | while expression do optional_statement
-        {}
+        { MPSWhile {mpsCond = $2, mpsStmtDo = $4} }
 
 variable
       :: { MPVar }
@@ -210,10 +215,15 @@ tail  :: { [MPExpr] }
         { [] }
 
 procedure_statement
+      :: { MPStmt }
       : id
-        {}
+        { let (_, TokenIdentifier name) = $1
+           in MPSFnCall {mpsFnName = name, mpsArgs = []}
+        }
       | id '(' expression_list ')'
-        {}
+        { let (_, TokenIdentifier name) = $1
+           in MPSFnCall {mpsFnName = name, mpsArgs = reverse $3}
+        }
 
 expression_list
       :: { [MPExpr] }

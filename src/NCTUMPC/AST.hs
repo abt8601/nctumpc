@@ -9,7 +9,8 @@
 --
 -- Abstract syntax tree of a MiniPascal source.
 module NCTUMPC.AST
-  ( MPVar (..),
+  ( MPStmt (..),
+    MPVar (..),
     MPExpr (..),
     MPBinOp (..),
     MPUnOp (..),
@@ -18,6 +19,41 @@ module NCTUMPC.AST
 where
 
 import qualified Data.ByteString as B
+
+-- | Statement.
+data MPStmt
+  = -- | Variable assignment.
+    MPSAssign
+      { -- | Variable to be assigned.
+        mpsVarName :: MPVar,
+        -- | Expression to be assigned to the variable.
+        mpsVarExpr :: MPExpr
+      }
+  | -- | Function/procedure call.
+    MPSFnCall
+      { -- | Name of the called procedure.
+        mpsFnName :: B.ByteString,
+        -- | Arguments.
+        mpsArgs :: [MPExpr]
+      }
+  | -- | Compound statement.
+    MPSCompound [MPStmt]
+  | -- | "@if@-@then@-@else@".
+    MPSIf
+      { -- | Condition.
+        mpsCond :: MPExpr,
+        -- | Statement for the "then" branch.
+        mpsStmtThen :: Maybe MPStmt,
+        -- | Statement for the "else" branch.
+        mpsStmtElse :: Maybe MPStmt
+      }
+  | -- | "@while@-@do@".
+    MPSWhile
+      { -- | Condition.
+        mpsCond :: MPExpr,
+        -- | Statement to run repeatedly.
+        mpsStmtDo :: Maybe MPStmt
+      }
 
 -- | Variable.
 data MPVar = MPVar
