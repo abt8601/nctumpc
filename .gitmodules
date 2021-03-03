@@ -4,3 +4,6 @@
 [submodule "icd-hw2"]
 	path = icd-test-data/hw2
 	url = https://github.com/ICD20/hw2.git
+[submodule "icd-hw3"]
+	path = icd-test-data/hw3
+	url = https://github.com/ICD20/hw3.git
