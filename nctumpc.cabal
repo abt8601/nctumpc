@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       Lib
+      NCTUMPC.AST
       NCTUMPC.Loc
       NCTUMPC.Parser
       NCTUMPC.Parser.Internal.Actions

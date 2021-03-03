@@ -11,6 +11,13 @@
 -- MiniPascal parser.
 module NCTUMPC.Parser (parse) where
 
+import NCTUMPC.AST
+  ( MPVar (..),
+    MPExpr (..),
+    MPBinOp (..),
+    MPUnOp (..),
+    MPN (..),
+  )
 import NCTUMPC.Loc (LocSpan (..))
 import NCTUMPC.Parser.Internal.Actions
 import NCTUMPC.Parser.Scanner (scanCont)
@@ -190,13 +197,17 @@ statement
         {}
 
 variable
+      :: { MPVar }
       : id tail
-        {}
+        { let (_, TokenIdentifier name) = $1
+           in MPVar {mpvName = name, mpvSubscrs = reverse $2}
+        }
 
-tail  : tail '[' expression ']'
-        {}
+tail  :: { [MPExpr] }
+      : tail '[' expression ']'
+        { $3 : $1 }
       | {- empty -}
-        {}
+        { [] }
 
 procedure_statement
       : id
@@ -205,54 +216,61 @@ procedure_statement
         {}
 
 expression_list
+      :: { [MPExpr] }
       : expression
-        {}
+        { [$1] }
       | expression_list ',' expression
-        {}
+        { $3 : $1 }
 
 expression
+      :: { MPExpr }
       : expression and  expression
-        {}
+        { MPEBinOp $1 MPOAnd $3 }
       | expression or   expression
-        {}
+        { MPEBinOp $1 MPOOr  $3 }
       | expression '<'  expression
-        {}
+        { MPEBinOp $1 MPOLt  $3 }
       | expression '>'  expression
-        {}
+        { MPEBinOp $1 MPOGt  $3 }
       | expression '='  expression
-        {}
+        { MPEBinOp $1 MPOEq  $3 }
       | expression '<=' expression
-        {}
+        { MPEBinOp $1 MPOLet $3 }
       | expression '>=' expression
-        {}
+        { MPEBinOp $1 MPOGet $3 }
       | expression '!=' expression
-        {}
+        { MPEBinOp $1 MPONeq $3 }
       | expression '+'  expression
-        {}
+        { MPEBinOp $1 MPOAdd $3 }
       | expression '-'  expression
-        {}
+        { MPEBinOp $1 MPOSub $3 }
       | expression '*'  expression
-        {}
+        { MPEBinOp $1 MPOMul $3 }
       | expression '/'  expression
-        {}
+        { MPEBinOp $1 MPODiv $3 }
       | id tail
-        {}
+        { let (_, TokenIdentifier name) = $1
+           in MPEVar $ MPVar {mpvName = name, mpvSubscrs = reverse $2}
+        }
       | id '(' expression_list ')'
-        {}
+        { let (_, TokenIdentifier name) = $1
+           in MPEFnCall {mpeFnName = name, mpeArgs = reverse $3}
+        }
       | num
-        {}
+        { MPEN $1 }
       | literalStr
-        {}
+        { let (_, TokenLiteralStr value) = $1 in MPELitStr value }
       | '(' expression ')'
-        {}
+        { $2 }
       | not expression
-        {}
+        { MPEUnOp MPONot $2 }
       | '-' expression %prec NEG
-        {}
+        { MPEUnOp MPONeg $2 }
 
-num   : integerNum
-        {}
+num   :: { MPN }
+      : integerNum
+        { let (_, TokenIntegerNum n) = $1 in MPNInteger n }
       | realNumber
-        {}
+        { let (_, TokenRealNumber n) = $1 in MPNReal n }
       | scientific
-        {}
+        { let (_, TokenScientific n) = $1 in MPNReal n }
