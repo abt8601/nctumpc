@@ -132,7 +132,7 @@ arguments
 parameter_list
       : optional_var identifier_list ':' type
         {}
-      | optional_var identifier_list ':' type ';' parameter_list
+      | parameter_list ';' optional_var identifier_list ':' type
         {}
 
 optional_var
@@ -179,7 +179,7 @@ variable
       : id tail
         {}
 
-tail  : '[' expression ']' tail
+tail  : tail '[' expression ']'
         {}
       | {- empty -}
         {}
