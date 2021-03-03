@@ -70,6 +70,12 @@ import NCTUMPC.Parser.Types (P, Token (..))
   scientific { (_, TokenScientific _) }
   literalStr { (_, TokenLiteralStr _) }
 
+%nonassoc and or
+%nonassoc '<' '>' '=' '<=' '>=' '!='
+%left '+' '-'
+%left '*' '/'
+%left not NEG
+
 %%
 
 prog  : program id '(' identifier_list ')' ';'
@@ -205,32 +211,31 @@ expression_list
         {}
 
 expression
-      : boolexpression
+      : expression and  expression
         {}
-      | boolexpression and boolexpression
+      | expression or   expression
         {}
-      | boolexpression or  boolexpression
+      | expression '<'  expression
         {}
-
-boolexpression
-      : simple_expression
+      | expression '>'  expression
         {}
-      | simple_expression relop simple_expression
+      | expression '='  expression
         {}
-
-simple_expression
-      : term
+      | expression '<=' expression
         {}
-      | simple_expression addop term
+      | expression '>=' expression
         {}
-
-term  : factor
+      | expression '!=' expression
         {}
-      | term mulop factor
+      | expression '+'  expression
         {}
-
-factor
-      : id tail
+      | expression '-'  expression
+        {}
+      | expression '*'  expression
+        {}
+      | expression '/'  expression
+        {}
+      | id tail
         {}
       | id '(' expression_list ')'
         {}
@@ -240,32 +245,9 @@ factor
         {}
       | '(' expression ')'
         {}
-      | not factor
+      | not expression
         {}
-      | '-' factor
-        {}
-
-addop : '+'
-        {}
-      | '-'
-        {}
-
-mulop : '*'
-        {}
-      | '/'
-        {}
-
-relop : '<'
-        {}
-      | '>'
-        {}
-      | '='
-        {}
-      | '<='
-        {}
-      | '>='
-        {}
-      | '!='
+      | '-' expression %prec NEG
         {}
 
 num   : integerNum
