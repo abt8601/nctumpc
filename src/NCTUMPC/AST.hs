@@ -25,13 +25,13 @@ data MPStmt
   = -- | Variable assignment.
     MPSAssign
       { -- | Variable to be assigned.
-        mpsVarName :: MPVar,
+        mpsAssignVar :: MPVar,
         -- | Expression to be assigned to the variable.
-        mpsVarExpr :: MPExpr
+        mpsAssignExpr :: MPExpr
       }
   | -- | Function/procedure call.
     MPSFnCall
-      { -- | Name of the called procedure.
+      { -- | Name of the called function/procedure.
         mpsFnName :: B.ByteString,
         -- | Arguments.
         mpsArgs :: [MPExpr]
@@ -82,7 +82,8 @@ data MPExpr
         -- | Operand.
         mpeOperand :: MPExpr
       }
-  | -- | Variable, or function call with no arguments.
+  | -- | Variable, or function call with no arguments. (They are syntactically
+    -- identical.)
     MPEVar MPVar
   | -- | Function call.
     MPEFnCall
@@ -93,7 +94,7 @@ data MPExpr
       }
   | -- | Number.
     MPEN MPN
-  | -- | String literal. The value is quoted.
+  | -- | String literal. The value is exactly as written in the source.
     MPELitStr B.ByteString
   deriving (Eq, Ord, Show, Read)
 

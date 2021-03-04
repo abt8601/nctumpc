@@ -191,7 +191,7 @@ optional_statement
 statement
       :: { MPStmt }
       : variable ':=' expression
-        { MPSAssign {mpsVarName = $1, mpsVarExpr = $3} }
+        { MPSAssign {mpsAssignVar = $1, mpsAssignExpr = $3} }
       | procedure_statement
         { $1 }
       | compound_statement
