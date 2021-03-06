@@ -11,8 +11,14 @@
 -- MiniPascal parser.
 module NCTUMPC.Parser (parse) where
 
+import qualified Data.ByteString as B
 import NCTUMPC.AST
-  ( MPStmt (..),
+  ( MPProg (..),
+    MPDecl,
+    MPType (..),
+    MPStdType (..),
+    MPSubProgDecl (..),
+    MPStmt (..),
     MPVar (..),
     MPExpr (..),
     MPBinOp (..),
@@ -86,78 +92,110 @@ import NCTUMPC.Parser.Types (P, Token (..))
 
 %%
 
-prog  : program id '(' identifier_list ')' ';'
+prog  :: { MPProg }
+      : program id '(' identifier_list ')' ';'
         declarations
         subprogram_declarations
         compound_statement
         '.'
-        {}
+        { let (_, TokenIdentifier name) = $2
+           in MPProg
+                { mppName = name,
+                  mppExtFds = reverse $4,
+                  mppDecls = reverse $7,
+                  mppSubProgDecls = reverse $8,
+                  mppBody = $9
+                } }
 
 identifier_list
+      :: { [B.ByteString] }
       : id
-        {}
+        { let (_, TokenIdentifier name) = $1 in [name] }
       | identifier_list ',' id
-        {}
+        { let (_, TokenIdentifier name) = $3 in name : $1 }
 
 declarations
+      :: { [MPDecl] }
       : declarations declaration
-        {}
+        { $1 ++ $2 }
       | {- empty -}
-        {}
+        { [] }
 
 declaration
+      :: { [MPDecl] }
       : var identifier_list ':' type ';'
-        {}
+        { map (\x -> (x, $4)) (reverse $2) }
 
-type  : standard_type
-        {}
+type  :: { MPType }
+      : standard_type
+        { MPTStdType $1 }
       | array '[' num '..' num ']' of type
-        {}
+        { MPTArray
+            { mptArrayLBound = $3,
+              mptArrayUBound = $5,
+              mptElemTy = $8
+            } }
 
 standard_type
+      :: { MPStdType }
       : integer
-        {}
+        { MPTInteger }
       | real
-        {}
+        { MPTReal }
       | string
-        {}
+        { MPTString }
 
 subprogram_declarations
+      :: { [MPSubProgDecl] }
       : subprogram_declarations subprogram_declaration ';'
-        {}
+        { $2 : $1 }
       | {- empty -}
-        {}
+        { [] }
 
 subprogram_declaration
+      :: { MPSubProgDecl }
       : subprogram_head
         declarations
         subprogram_declarations
         compound_statement
-        {}
+        { let (name, params, retty) = $1
+           in MPSubProgDecl
+                { mpspName = name,
+                  mpspParams = params,
+                  mpspRetTy = retty,
+                  mpspDecls = reverse $2,
+                  mpspSubProgDecls = reverse $3,
+                  mpspBody = $4
+                } }
 
 subprogram_head
+      :: { (B.ByteString, [(B.ByteString, MPType)], Maybe MPStdType) }
       : function id arguments ':' standard_type ';'
-        {}
+        { let (_, TokenIdentifier name) = $2 in (name, $3, Just $5) }
       | procedure id arguments ';'
-        {}
+        { let (_, TokenIdentifier name) = $2 in (name, $3, Nothing) }
 
 arguments
+      :: { [(B.ByteString, MPType)] }
       : '(' parameter_list ')'
-        {}
+        { $2 }
       | {- empty -}
-        {}
+        { [] }
 
 parameter_list
+      :: { [(B.ByteString, MPType)] }
       : parameter_group
-        {}
+        { $1 }
       | parameter_list ';' parameter_group
-        {}
+        { $1 ++ $3 }
 
 parameter_group
+      :: { [(B.ByteString, MPType)] }
       : optional_var identifier_list ':' type
-        {}
+        { map (\x -> (x, $4)) (reverse $2) }
 
 optional_var
+      :: { () }
       : var
         {}
       | {- empty -}

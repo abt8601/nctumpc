@@ -9,7 +9,12 @@
 --
 -- Abstract syntax tree of a MiniPascal source.
 module NCTUMPC.AST
-  ( MPStmt (..),
+  ( MPProg (..),
+    MPDecl,
+    MPType (..),
+    MPStdType (..),
+    MPSubProgDecl (..),
+    MPStmt (..),
     MPVar (..),
     MPExpr (..),
     MPBinOp (..),
@@ -19,6 +24,58 @@ module NCTUMPC.AST
 where
 
 import qualified Data.ByteString as B
+
+-- | Program.
+data MPProg = MPProg
+  { -- | Program name.
+    mppName :: B.ByteString,
+    -- | External file descriptors.
+    mppExtFds :: [B.ByteString],
+    -- | Declarations.
+    mppDecls :: [MPDecl],
+    -- | Subprogram declarations.
+    mppSubProgDecls :: [MPSubProgDecl],
+    -- | Program body.
+    mppBody :: [MPStmt]
+  }
+
+-- | Declaration.
+type MPDecl = (B.ByteString, MPType)
+
+-- | Type.
+data MPType
+  = -- | Standard type.
+    MPTStdType MPStdType
+  | -- | Array.
+    MPTArray
+      { -- | Lower bound of array.
+        mptArrayLBound :: MPN,
+        -- | Upper bound of array.
+        mptArrayUBound :: MPN,
+        -- | Element type.
+        mptElemTy :: MPType
+      }
+  deriving (Eq, Ord, Show, Read)
+
+-- | Standard type.
+data MPStdType = MPTInteger | MPTReal | MPTString deriving (Eq, Ord, Show, Read)
+
+-- | Subprogram declaration.
+data MPSubProgDecl = MPSubProgDecl
+  { -- | Name of the subprogram.
+    mpspName :: B.ByteString,
+    -- | Parameters.
+    mpspParams :: [(B.ByteString, MPType)],
+    -- | Return type.
+    mpspRetTy :: Maybe MPStdType,
+    -- | Declarations.
+    mpspDecls :: [MPDecl],
+    -- | Subprogram declarations.
+    mpspSubProgDecls :: [MPSubProgDecl],
+    -- | Body of the subprogram.
+    mpspBody :: [MPStmt]
+  }
+  deriving (Eq, Ord, Show, Read)
 
 -- | Statement.
 data MPStmt
@@ -54,6 +111,7 @@ data MPStmt
         -- | Statement to run repeatedly.
         mpsStmtDo :: Maybe MPStmt
       }
+  deriving (Eq, Ord, Show, Read)
 
 -- | Variable.
 data MPVar = MPVar
